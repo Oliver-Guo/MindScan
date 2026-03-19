@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea'
 import EmotionResultCard from './EmotionResultCard'
 import BreathingAnimation from './BreathingAnimation'
 
-const EMOTION_TAGS = ['焦慮', '疲憊', '憤怒', '悲傷', '迷茫', '壓力大']
+const EMOTION_TAGS = ['焦慮', '疲憊', '憤怒', '悲傷', '迷茫', '壓力大', '孤獨', '委屈', '無助', '煩躁']
 
 export default function EmotionTab() {
   const { emotionInput, emotionResult, setEmotionInput, setEmotionResult } = useAppStore()

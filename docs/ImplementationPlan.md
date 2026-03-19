@@ -256,7 +256,7 @@ cd frontend && npm run dev
 - `BreathingAnimation.tsx`：4-7-8 圓圈縮放 CSS Animation（純 CSS keyframes）
 
 **Subagent B（LieTab）：**
-- `LieTab.tsx`：Textarea + 範例按鈕 + useMutation
+- `LieTab.tsx`：Textarea + 範例下拉選單（5 種情境） + useMutation
 - `LieResultCard.tsx`：可信度環形圖 + 風險 Badge
 - `HighlightedSentences.tsx`：逐句高亮 + hover tooltip（紅/黃/綠）
 - `FeatureList.tsx`：警示特徵清單（條列 + 圖示）

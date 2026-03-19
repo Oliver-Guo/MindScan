@@ -4,6 +4,81 @@ import { AppError } from '../utils/AppError'
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
 
+// Model fallback list: default → attempt1 → attempt2 → attempt3 → attempt4
+const FALLBACK_MODELS = [
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-flash-lite-latest',
+  'gemini-flash-latest',
+  'gemini-3.1-flash-lite-preview',
+]
+
+// 需要 fallback 到下一個模型的 HTTP 狀態碼
+// 404 = 模型不存在 / 該版本不支援
+// 429 = 配額超限
+// 503 = 服務不可用
+const FALLBACK_ERROR_CODES = [404, 429, 503]
+
+function isFallbackError(err: unknown): boolean {
+  if (err instanceof Error) {
+    const msg = err.message.toLowerCase()
+    if (
+      msg.includes('quota') ||
+      msg.includes('rate limit') ||
+      msg.includes('too many requests') ||
+      msg.includes('not found') ||
+      msg.includes('is not supported')
+    ) {
+      return true
+    }
+  }
+  // @google/generative-ai attaches a `status` property
+  const e = err as { status?: number }
+  return typeof e.status === 'number' && FALLBACK_ERROR_CODES.includes(e.status)
+}
+
+/**
+ * 清理 AI 回傳文字，移除可能包裹的 markdown code block
+ * 例：```json { ... } ``` → { ... }
+ */
+function cleanJsonResponse(raw: string): string {
+  // 移除 ```json ... ``` 或 ``` ... ```
+  const codeBlockMatch = raw.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/)
+  if (codeBlockMatch) return codeBlockMatch[1].trim()
+  return raw.trim()
+}
+
+async function generateWithFallback(
+  systemInstruction: string,
+  prompt: string,
+): Promise<string> {
+  let lastErr: unknown
+
+  for (const modelName of FALLBACK_MODELS) {
+    const model = genAI.getGenerativeModel({ model: modelName, systemInstruction })
+    try {
+      const result = await model.generateContent(prompt)
+      const raw = result.response.text().trim()
+      const cleaned = cleanJsonResponse(raw)
+      console.info(`[generateWithFallback] 使用模型：${modelName}，原始回傳前100字：${raw.slice(0, 100)}`)
+      return cleaned
+    } catch (err) {
+      lastErr = err
+      if (isFallbackError(err)) {
+        const e = err as { status?: number }
+        console.warn(`[generateWithFallback] 模型 ${modelName} 不可用（status: ${e.status ?? 'unknown'}），嘗試下一個模型…`)
+        continue
+      }
+      // Non-quota error → rethrow immediately
+      throw err
+    }
+  }
+
+  // All models exhausted due to quota
+  console.error('[generateWithFallback] 所有模型配額均已耗盡', lastErr)
+  throw new AppError('QUOTA_EXCEEDED', 'API 額度限制，請稍後再試或升級 Gemini 方案', 429)
+}
+
 export interface EmotionTip {
   icon: string
   title: string
@@ -39,11 +114,8 @@ export interface LieResult {
 }
 
 export const analyzeEmotion = async (text: string): Promise<EmotionResult> => {
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-3.1-flash-lite-preview',
-    systemInstruction: `你是一位溫暖專業的情緒支持顧問，擅長分析使用者的情緒狀態並給出實際可行的紓壓建議。
-請以 JSON 格式回覆，不要輸出其他文字、不要使用 markdown code block，直接輸出純 JSON。`,
-  })
+  const systemInstruction = `你是一位溫暖專業的情緒支持顧問，擅長分析使用者的情緒狀態並給出實際可行的紓壓建議。
+請以 JSON 格式回覆，不要輸出其他文字、不要使用 markdown code block，直接輸出純 JSON。`
 
   const prompt = `使用者描述：「${text}」
 
@@ -61,11 +133,11 @@ export const analyzeEmotion = async (text: string): Promise<EmotionResult> => {
 }`
 
   try {
-    const result = await model.generateContent(prompt)
-    const raw = result.response.text().trim()
+    const raw = await generateWithFallback(systemInstruction, prompt)
     const data = JSON.parse(raw) as EmotionResult
     return data
   } catch (err) {
+    if (err instanceof AppError) throw err
     if (err instanceof SyntaxError) {
       throw new AppError('PARSE_ERROR', 'AI 回傳格式異常，請稍後再試', 502)
     }
@@ -75,12 +147,9 @@ export const analyzeEmotion = async (text: string): Promise<EmotionResult> => {
 }
 
 export const analyzeLie = async (text: string): Promise<LieResult> => {
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-flash-latest',
-    systemInstruction: `你是一位語言行為分析專家，擅長識別文字中的欺騙性語言模式。
+  const systemInstruction = `你是一位語言行為分析專家，擅長識別文字中的欺騙性語言模式。
 分析時保持客觀，基於語言學特徵而非主觀判斷。
-請以 JSON 格式回覆，不要輸出其他文字、不要使用 markdown code block，直接輸出純 JSON。`,
-  })
+請以 JSON 格式回覆，不要輸出其他文字、不要使用 markdown code block，直接輸出純 JSON。`
 
   const prompt = `請分析以下文字的可信度：
 「${text}」
@@ -104,11 +173,11 @@ export const analyzeLie = async (text: string): Promise<LieResult> => {
 }`
 
   try {
-    const result = await model.generateContent(prompt)
-    const raw = result.response.text().trim()
+    const raw = await generateWithFallback(systemInstruction, prompt)
     const data = JSON.parse(raw) as LieResult
     return data
   } catch (err) {
+    if (err instanceof AppError) throw err
     if (err instanceof SyntaxError) {
       throw new AppError('PARSE_ERROR', 'AI 回傳格式異常，請稍後再試', 502)
     }

@@ -32,9 +32,6 @@
   * {
     @apply border-border;
   }
-  html {
-    @apply dark;
-  }
   body {
     @apply bg-mindscan-bg text-foreground antialiased;
     font-family: 'Noto Sans TC', system-ui, sans-serif;

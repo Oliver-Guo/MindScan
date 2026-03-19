@@ -57,6 +57,7 @@ const { mutate, isPending } = useMutation({
 ## Axios 設定參考
 
 Axios 實例位於 `src/lib/axios.ts`，已設定：
-- `baseURL` 從 `VITE_API_BASE_URL` 環境變數讀取
-- 請求攔截器自動帶 `Authorization: Bearer <token>`
-- 回應攔截器自動解包 `.data`，401 時自動登出
+- `baseURL` 從 `VITE_API_BASE_URL` 環境變數讀取（預設 `/api/v1`）
+- Header 固定帶 `Content-Type: application/json`
+
+本專案 API 呼叫統一放在 `src/api/analyze.api.ts`，透過 `analyzeApi` 物件匯出。

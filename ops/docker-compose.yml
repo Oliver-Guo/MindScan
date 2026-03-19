@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../ops/Dockerfile.backend
+    container_name: mindscan-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      CORS_ORIGIN: http://localhost
+      LOG_LEVEL: info
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.frontend
+    container_name: mindscan-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

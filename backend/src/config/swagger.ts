@@ -6,9 +6,9 @@ const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Blog API',
+      title: 'MindScan AI API',
       version: '1.0.0',
-      description: 'Blog website REST API documentation',
+      description: 'MindScan AI — 情緒急救包 & 謊言偵測器 API 文件',
     },
     servers: [
       {
@@ -16,15 +16,6 @@ const options: swaggerJsdoc.Options = {
         description: 'Development server',
       },
     ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
-      },
-    },
   },
   apis: ['./src/routes/*.ts', './src/controllers/*.ts'],
 }

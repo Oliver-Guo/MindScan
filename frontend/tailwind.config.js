@@ -48,6 +48,16 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // MindScan AI 色彩系統
+        mindscan: {
+          bg: '#0d0d14',
+          surface: '#13131f',
+          emotion: '#ff6b9d',
+          detection: '#00e5c8',
+          danger: '#ff4d6a',
+          warning: '#ffc850',
+          safe: '#4dffb4',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -63,10 +73,28 @@ export default {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        // 呼吸動畫
+        breathe: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.7' },
+          '50%': { transform: 'scale(1.4)', opacity: '1' },
+        },
+        // 打字機動畫
+        typewriter: {
+          from: { width: '0' },
+          to: { width: '100%' },
+        },
+        // 淡入
+        'fade-in': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'breathe': 'breathe 4s ease-in-out infinite',
+        'breathe-slow': 'breathe 8s ease-in-out infinite',
+        'fade-in': 'fade-in 0.4s ease-out',
       },
     },
   },

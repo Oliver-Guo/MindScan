@@ -115,7 +115,8 @@ project/
     ├── docker-compose.yml
     ├── Dockerfile.backend
     ├── Dockerfile.frontend
-    └── nginx.conf
+    ├── nginx.conf
+    └── .env.example
 ```
 
 ---
@@ -124,6 +125,10 @@ project/
 
 ```bash
 cd ops
+
+# 建立環境變數檔（首次需要）
+cp .env.example .env
+# 填入你的 GEMINI_API_KEY
 
 # 啟動所有服務（後端 + 前端）
 docker-compose up -d

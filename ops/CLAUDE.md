@@ -12,6 +12,7 @@
 | `Dockerfile.frontend` | 前端 Docker 映像（Vite build → Nginx Alpine） |
 | `docker-compose.yml` | 容器化部署（Backend + Frontend） |
 | `nginx.conf` | Nginx 設定（SPA fallback + API Proxy + Gzip） |
+| `.env.example` | 環境變數範本（部署前複製為 `.env` 並填入 API Key） |
 
 ---
 
@@ -29,17 +30,25 @@ docker-compose logs -f backend                   # 查看後端日誌
 
 ## 環境變數注入
 
-`docker-compose.yml` 透過 `${GEMINI_API_KEY}` 從 shell 環境讀取，部署前需設定：
+`docker-compose.yml` 透過 `${GEMINI_API_KEY}` 從 shell 環境讀取，其餘變數已在 compose 中設定預設值。
+
+部署前需設定 API Key：
 
 ```bash
 export GEMINI_API_KEY=AIza-xxxxx
 docker-compose up -d
 ```
 
-或在 `ops/` 目錄建立 `.env` 檔案：
+或在 `ops/` 目錄建立 `.env` 檔案（參考 `.env.example`）：
 
 ```env
 GEMINI_API_KEY=AIza-xxxxx
+
+# 可選覆蓋（已有預設值）
+# NODE_ENV=production
+# PORT=3001
+# CORS_ORIGIN=http://localhost
+# LOG_LEVEL=info
 ```
 
 ---

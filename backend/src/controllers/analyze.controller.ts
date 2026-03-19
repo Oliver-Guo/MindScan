@@ -56,7 +56,7 @@ export const emotion = async (req: Request, res: Response, next: NextFunction) =
  *                 type: string
  *                 minLength: 1
  *                 maxLength: 2000
- *                 example: 我絕對沒有說過那些話，你可能記錯了
+ *                 example: 我絕對沒有說過那些話，你可能記錯了。我一直都很支持你的，每次都是。再說了，當時的情況很複雜，不是三言兩語說得清楚的。
  *     responses:
  *       200:
  *         description: 分析成功

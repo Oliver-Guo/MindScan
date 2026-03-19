@@ -46,7 +46,7 @@ export const createUser = (dto: CreateUserDto) =>
 - UI 使用 shadcn/ui 元件 + Tailwind CSS
 - Loading / Empty / Error 狀態都要處理
 
-**d) 掛載路由** — 在 `src/main.tsx` 新增 `<Route>`，需要認證的頁面包在 `<ProtectedRoute>` 內
+**d) 掛載路由** — 在 `src/main.tsx` 新增 `<Route>`
 
 ### 3. 元件結構規範
 
@@ -64,16 +64,6 @@ export default function ComponentName({ ... }: Props) {    // 6. 元件
 }
 ```
 
-### 4. 路由設定範例
-
-```tsx
-const ProtectedRoute = ({ children }) => {
-  const { token } = useAuthStore()
-  if (!token) return <Navigate to="/login" />
-  return children
-}
-```
-
-### 5. 完成後提示
+### 4. 完成後提示
 - 共用元件放至 `src/components/shared/`
 - 有表單需求時執行 `/frontend-form`

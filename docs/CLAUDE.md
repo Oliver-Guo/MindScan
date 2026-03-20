@@ -1,14 +1,6 @@
 # Docs — CLAUDE.md
 
-> 文檔站台開發指南（VitePress）
-
----
-
-## 技術
-
-- **VitePress** — Vue 驅動的靜態文檔網站生成器
-- 文檔使用 Markdown 撰寫
-- 部署：GitHub Pages / Nginx
+> MindScan AI 專案文檔目錄。包含需求規格、實作計畫與架構設計文件。
 
 ---
 
@@ -16,38 +8,30 @@
 
 ```
 docs/
-├── .vitepress/
-│   └── config.ts        # VitePress 設定
-├── guide/
-│   ├── index.md          # 快速開始
-│   ├── installation.md   # 安裝指南
-│   └── development.md    # 開發指南
-├── api/
-│   ├── index.md          # API 總覽
-│   ├── auth.md           # 認證 API
-│   └── users.md          # 用戶 API
-├── architecture/
-│   ├── overview.md       # 架構總覽
-│   ├── backend.md        # 後端架構
-│   └── database.md       # 資料庫設計
-└── index.md              # 首頁
+├── CLAUDE.md              # 本文件（文檔目錄說明）
+├── MindScan.md            # 完整需求與架構規劃（功能清單、Prompt 規格、UI 設計、Demo 腳本）
+├── ImplementationPlan.md  # 代碼實作策略（3 Session 切分，已全部完成）
+├── plan-mysql-logging.md  # MySQL + Prisma 日誌實作計畫（已完成）
+├── api/                   # （預留）API 端點詳細文檔
+├── architecture/          # （預留）架構設計文檔
+├── features/              # （預留）功能規格文檔
+└── guide/                 # （預留）使用者/開發者指南
 ```
 
 ---
 
-## 啟動文檔站台
+## 文件說明
 
-```bash
-cd docs
-npm install
-npm run dev    # 開發模式（port 5174）
-npm run build  # 建構靜態檔案
-```
+| 文件 | 用途 | 狀態 |
+|------|------|------|
+| `MindScan.md` | 專案需求規格書：功能清單、技術架構、Prompt 設計、UI 色彩、Demo 腳本 | ✅ 已完成 v1.2 |
+| `ImplementationPlan.md` | Blog → MindScan 代碼改造的 3 Session 實作步驟 | ✅ 全部完成 |
+| `plan-mysql-logging.md` | MySQL + Prisma API 呼叫日誌的實作計畫 | ✅ 已實作 |
 
 ---
 
 ## 文檔撰寫規範
 
-- 每個 API 端點必須有：說明、請求格式、回應格式、範例
-- 新增功能時同步更新對應文檔
-- 使用繁體中文撰寫（面向內部團隊）
+- 使用繁體中文撰寫
+- API 文檔以 Swagger UI（`/api/docs`）為主，程式碼內 JSDoc 自動生成
+- 新增功能時同步更新 `MindScan.md` 功能清單狀態

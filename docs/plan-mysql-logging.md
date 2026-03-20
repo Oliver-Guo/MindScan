@@ -1,7 +1,8 @@
-# Plan: 新增 MySQL + Prisma 記錄 AI API 呼叫日誌
+# Plan: 新增 MySQL + Prisma 記錄 AI API 呼叫日誌 ✅ 已實作
 
 ## Context
 
+> **狀態：已完成實作並部署 ✅** — 所有步驟已執行，MySQL 日誌正常記錄。
 目前 `analyze.service.ts` 呼叫 Gemini API 時沒有留下任何持久化紀錄。為了追蹤 API 使用狀況（成功/失敗、模型切換、配額耗盡等），需要新增 MySQL 資料庫，並在每次 API 呼叫後以 fire-and-forget 方式寫入 `ai_api_logs` 表。
 
 ---

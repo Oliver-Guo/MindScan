@@ -6,6 +6,7 @@ import { sendSuccess } from '../utils/response'
  * @swagger
  * /analyze/emotion:
  *   post:
+ *     tags: [Analyze]
  *     summary: 情緒急救包分析
  *     description: 分析使用者輸入的情緒描述，回傳情緒類型、強度、紓壓建議與鼓勵信
  *     requestBody:
@@ -13,21 +14,41 @@ import { sendSuccess } from '../utils/response'
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [text]
- *             properties:
- *               text:
- *                 type: string
- *                 minLength: 1
- *                 maxLength: 2000
- *                 example: 最近工作壓力很大，睡眠品質很差，感覺很迷茫
+ *             $ref: '#/components/schemas/AnalyzeInput'
  *     responses:
  *       200:
  *         description: 分析成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/EmotionResult'
+ *                 message:
+ *                   type: string
+ *                   example: 分析完成
  *       400:
  *         description: 輸入驗證失敗
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       429:
+ *         description: API 額度限制
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       502:
  *         description: AI 服務異常
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 export const emotion = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -42,6 +63,7 @@ export const emotion = async (req: Request, res: Response, next: NextFunction) =
  * @swagger
  * /analyze/lie:
  *   post:
+ *     tags: [Analyze]
  *     summary: 謊言偵測器分析
  *     description: 分析文字的可信度，標記語言風險並回傳可信度報告
  *     requestBody:
@@ -49,21 +71,41 @@ export const emotion = async (req: Request, res: Response, next: NextFunction) =
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [text]
- *             properties:
- *               text:
- *                 type: string
- *                 minLength: 1
- *                 maxLength: 2000
- *                 example: 我絕對沒有說過那些話，你可能記錯了。我一直都很支持你的，每次都是。再說了，當時的情況很複雜，不是三言兩語說得清楚的。
+ *             $ref: '#/components/schemas/AnalyzeInput'
  *     responses:
  *       200:
  *         description: 分析成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/LieResult'
+ *                 message:
+ *                   type: string
+ *                   example: 分析完成
  *       400:
  *         description: 輸入驗證失敗
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       429:
+ *         description: API 額度限制
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       502:
  *         description: AI 服務異常
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 export const lie = async (req: Request, res: Response, next: NextFunction) => {
   try {

@@ -42,6 +42,7 @@ project/
 | 驗證 | Zod | ^3.x |
 | 日誌 | Winston + Morgan | - |
 | API 文檔 | Swagger UI (OpenAPI 3.0) | - |
+| 測試 | Vitest + Supertest | ^1.3 |
 
 ### Frontend
 | 項目 | 技術 | 版本 |
@@ -56,6 +57,7 @@ project/
 | 表單 | React Hook Form + Zod | - |
 | HTTP | Axios | ^1.x |
 | 圖示 | Lucide React | - |
+| 測試 | Vitest + Testing Library | ^4.1 |
 
 ---
 
@@ -140,3 +142,6 @@ GET  /api/v1/health            # 健康檢查（確認 API Key 已設定）
 5. **前端新增 API 呼叫**，統一在 `src/api/` 目錄下建立對應檔案，不在元件內直接呼叫 axios
 6. **所有錯誤**透過 `throw new AppError(code, message, statusCode)` 拋出，由 errorHandler 統一處理
 7. **輸入長度限制**：前後端都需驗證，防止過長輸入送入 Gemini API（建議上限 2000 字元）
+8. **測試**：新增或修改功能後，應同步更新對應的單元測試
+   - 後端：`cd backend && npm test`（Vitest，測試檔案在 `tests/` 目錄）
+   - 前端：`cd frontend && npm test`（Vitest + Testing Library，測試檔案以 `__tests__/` 目錄放在對應原始碼旁）

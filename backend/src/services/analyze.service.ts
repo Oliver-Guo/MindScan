@@ -20,7 +20,7 @@ const FALLBACK_MODELS = [
 // 503 = 服務不可用
 const FALLBACK_ERROR_CODES = [404, 429, 503]
 
-function isFallbackError(err: unknown): boolean {
+export function isFallbackError(err: unknown): boolean {
   if (err instanceof Error) {
     const msg = err.message.toLowerCase()
     if (
@@ -42,7 +42,7 @@ function isFallbackError(err: unknown): boolean {
  * 清理 AI 回傳文字，移除可能包裹的 markdown code block
  * 例：```json { ... } ``` → { ... }
  */
-function cleanJsonResponse(raw: string): string {
+export function cleanJsonResponse(raw: string): string {
   // 移除 ```json ... ``` 或 ``` ... ```
   const codeBlockMatch = raw.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/)
   if (codeBlockMatch) return codeBlockMatch[1].trim()

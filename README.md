@@ -149,9 +149,15 @@ docker-compose ps
 # 查看後端日誌
 docker-compose logs -f backend
 
-# 重建後端
-docker-compose up -d --build backend            
+# 重建後端（程式碼變更時）
+docker-compose up -d --build backend
+
+# 重啟後端（僅更新 ops/.env 環境變數時，不需 --build）
+docker-compose up -d backend
 ```
+
+> **注意**：`ops/.env` 用於 Docker 部署，`backend/.env` 用於本機 `npm run dev`。
+> 修改 `ops/.env` 後需執行 `docker-compose up -d backend` 重啟容器才會生效。
 
 | 服務 | 網址 |
 |------|------|

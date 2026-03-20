@@ -16,6 +16,7 @@
 | 資料庫 | MySQL 8.0 + Prisma ORM（API 呼叫日誌）|
 | 前端 | React 18 + Vite + TypeScript + shadcn/ui |
 | 狀態管理 | Zustand + TanStack Query v5 |
+| 測試 | Vitest + Testing Library（前端）/ Supertest（後端）|
 | 部署 | Docker + Nginx |
 
 ---
@@ -105,6 +106,14 @@ project/
 │   │   ├── middlewares/       # 錯誤處理
 │   │   ├── schemas/           # Zod 驗證 Schema
 │   │   └── app.ts             # Express 入口
+│   ├── tests/                 # 單元測試（Vitest）
+│   │   ├── setup.ts           # 全域 mock（env/prisma/logger）
+│   │   ├── schemas/           # Schema 驗證測試
+│   │   ├── utils/             # AppError、response 測試
+│   │   ├── middlewares/       # error/validate middleware 測試
+│   │   ├── services/          # analyze.service、api-log 測試
+│   │   └── controllers/       # controller 測試
+│   ├── vitest.config.ts       # Vitest 設定
 │   ├── prisma.config.ts       # Prisma 7 設定
 │   ├── .env.example
 │   └── package.json
@@ -116,7 +125,9 @@ project/
 │   │   ├── pages/             # 頁面元件
 │   │   ├── stores/            # Zustand 狀態
 │   │   ├── types/             # TypeScript 型別
+│   │   ├── test/              # 測試 setup
 │   │   └── main.tsx           # 路由入口
+│   ├── vitest.config.ts       # Vitest 設定
 │   └── package.json
 ├── docs/
 │   └── MindScan.md            # 完整需求與架構規劃
@@ -202,11 +213,15 @@ cp frontend/.env.example frontend/.env
 # 後端
 npm run dev              # 開發模式（hot reload）
 npm run build            # 編譯 TypeScript
-npm run test             # 執行測試
+npm test                 # 執行測試（Vitest, 50 tests）
+npm run test:watch       # 測試監聽模式
+npm run test:coverage    # 測試覆蓋率報告
 
 # 前端
 npm run dev              # 開發模式
 npm run build            # 正式編譯
+npm test                 # 執行測試（Vitest + Testing Library, 35 tests）
+npm run test:watch       # 測試監聽模式
 
 # Docker
 docker-compose up -d                # 啟動所有服務

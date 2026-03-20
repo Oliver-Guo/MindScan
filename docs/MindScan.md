@@ -56,31 +56,31 @@
 
 ### 全局功能
 
-- [ ] Tab 切換動畫（兩個分頁平滑切換）
-- [ ] Loading 動畫（API 等待期間顯示）
-- [ ] 錯誤處理提示（API 失敗 / 空輸入 / 網路問題）
-- [ ] 結果可「重新分析」（清空後再次輸入）
+- [x] Tab 切換動畫（兩個分頁平滑切換）
+- [x] Loading 動畫（API 等待期間顯示）
+- [x] 錯誤處理提示（API 失敗 / 空輸入 / 網路問題）
+- [x] 結果可「重新分析」（清空後再次輸入）
 
 ### Tab 1：情緒急救包
 
-- [ ] 情緒快速標籤（焦慮、疲憊、憤怒、悲傷、迷茫、壓力大、孤獨、委屈、無助、煩躁）點擊自動帶入文字框
-- [ ] 自由輸入文字框（placeholder 範例引導輸入）
-- [ ] 呼吸動畫：圓圈縮放 + 文字提示（吸氣 4s → 憋氣 7s → 吐氣 8s）
-- [ ] 開始 / 暫停呼吸練習按鈕
-- [ ] 情緒強度儀表（視覺化圓形進度條）
-- [ ] 紓壓建議卡片（3 張，每張有圖示 + 說明）
-- [ ] 鼓勵信區塊（帶有 AI 打字機動畫效果）
-- [ ] 分享按鈕（複製鼓勵信文字）
+- [x] 情緒快速標籤（焦慮、疲憊、憤怒、悲傷、迷茫、壓力大、孤獨、委屈、無助、煩躁）點擊自動帶入文字框
+- [x] 自由輸入文字框（placeholder 範例引導輸入）
+- [x] 呼吸動畫：圓圈縮放 + 文字提示（吸氣 4s → 憋氣 7s → 吐氣 8s）
+- [x] 開始 / 暫停呼吸練習按鈕
+- [x] 情緒強度儀表（視覺化圓形進度條）
+- [x] 紓壓建議卡片（3 張，每張有圖示 + 說明）
+- [x] 鼓勵信區塊（帶有 AI 打字機動畫效果）
+- [x] 分享按鈕（複製鼓勵信文字）
 
 ### Tab 2：謊言偵測器
 
-- [ ] 大型文字輸入框（支援多段落貼入）
-- [ ] 範例文字下拉選單（5 種情境範例，方便 Demo）
-- [ ] 可信度分數環形圖（動畫顯示）
-- [ ] 風險等級 Badge（低風險 / 中風險 / 高風險）
-- [ ] 逐句高亮段落（紅 / 黃 / 綠 三色標記，hover 顯示原因）
-- [ ] 警示特徵清單（條列式，每項有圖示）
-- [ ] 分析總結文字區塊
+- [x] 大型文字輸入框（支援多段落貼入）
+- [x] 範例文字下拉選單（5 種情境範例，方便 Demo）
+- [x] 可信度分數環形圖（動畫顯示）
+- [x] 風險等級 Badge（低風險 / 中風險 / 高風險）
+- [x] 逐句高亮段落（紅 / 黃 / 綠 三色標記，hover 顯示原因）
+- [x] 警示特徵清單（條列式，每項有圖示）
+- [x] 分析總結文字區塊
 
 ---
 
@@ -89,16 +89,16 @@
 ### 4-1 整體架構
 
 ```
-Frontend（React）  →  Backend（Express）  →  Gemini API（主）
-     Zustand              Controller              ↕
-  TanStack Query           Service         Claude API（擴充）
-    shadcn/ui             AppError
+Frontend（React）  →  Backend（Express）  →  Gemini API（主，5 模型 fallback）
+     Zustand              Controller              ↕          ↓
+  TanStack Query           Service         Claude API（擴充）  MySQL
+    shadcn/ui             AppError          Prisma（API 日誌）
 ```
 
 - **API Key 由後端管理**，儲存於 `GEMINI_API_KEY` 環境變數，前端不接觸金鑰
 - 前端透過 `POST /api/v1/analyze/emotion` 和 `POST /api/v1/analyze/lie` 呼叫後端
 - 後端作為 AI API Proxy，組裝 Prompt 後呼叫 Gemini，回傳結構化 JSON
-- **主要 AI**：Google Gemini（`@google/generative-ai`，預設 `gemini-2.0-flash`）
+- **主要 AI**：Google Gemini（`@google/generative-ai`，預設 `gemini-2.5-flash-lite`，含 5 模型自動 fallback）
 - **待擴充**：Claude API（`@anthropic-ai/sdk`）可透過 `AI_PROVIDER` 環境變數切換
 
 ### 4-2 AI API 呼叫設計（Gemini SDK）
@@ -111,7 +111,7 @@ import { env } from '../config/env'
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
 const model = genAI.getGenerativeModel({
-  model: 'gemini-2.0-flash',
+  model: 'gemini-2.5-flash-lite',  // 含 5 模型 fallback
   systemInstruction: '你是一位溫暖專業的情緒支持顧問...請以 JSON 格式回覆，不要輸出其他文字。',
 })
 
@@ -283,7 +283,45 @@ API 呼叫使用 **TanStack Query v5** 的 `useMutation`，統一放在 `src/api
 
 ---
 
-## 八、風險與備案
+## 八、已實作的進階功能
+
+### 8-1 Gemini 模型 Fallback 機制
+
+當主模型配額耗盡或不可用時，自動依序嘗試 5 個 fallback 模型：
+`gemini-2.5-flash-lite` → `gemini-2.5-flash` → `gemini-flash-lite-latest` → `gemini-flash-latest` → `gemini-3.1-flash-lite-preview`
+
+觸發條件：HTTP 404（模型不存在）、429（配額超限）、503（服務不可用），以及錯誤訊息包含 quota / rate limit / not found 等關鍵字。
+
+### 8-2 MySQL + Prisma API 呼叫日誌
+
+- 每次 Gemini API 呼叫（含 fallback 每次嘗試）都以 fire-and-forget 方式寫入 ai_api_logs 表
+- 記錄：company_type、model_type、status、request（prompt 摘要）、response（截斷至 5000 字）
+- 失敗時僅寫 Winston 日誌，不阻塞主流程
+
+### 8-3 Swagger API 文檔（OpenAPI 3.0）
+
+- 存取路徑：http://localhost:3001/api/docs
+- 包含完整的 component schemas（AnalyzeInput、EmotionResult、LieResult、ErrorResponse 等）
+- 所有端點含 request/response body 定義與範例值
+
+### 8-4 單元測試
+
+| 端 | 框架 | 檔案數 | 測試數 |
+|----|------|--------|--------|
+| 後端 | Vitest + Supertest | 8 | 50 |
+| 前端 | Vitest + Testing Library | 7 | 35 |
+
+後端測試涵蓋：schemas、AppError、response、error/validate middleware、analyze.service（含 fallback、JSON 清理）、controller、api-log。
+前端測試涵蓋：utils、appStore、analyzeApi、useToast reducer、FeatureList、HighlightedSentences、EmotionResultCard。
+
+### 8-5 Docker 部署
+
+- ops/docker-compose.yml：MySQL + Backend + Frontend（Nginx）
+- 後端容器啟動時自動執行 prisma migrate deploy
+- MySQL 使用 healthcheck 確保後端啟動前 DB 已就緒
+
+---
+## 九、風險與備案
 
 | 風險 | 發生機率 | 備案 |
 |------|----------|------|
@@ -295,7 +333,7 @@ API 呼叫使用 **TanStack Query v5** 的 `useMutation`，統一放在 `src/api
 
 ---
 
-## 九、加分延伸（若時間允許）
+## 十、加分延伸（若時間允許）
 
 - [ ] 情緒歷史記錄（localStorage 儲存最近 5 次）
 - [ ] 謊言分析支援「上傳文字檔」
@@ -305,4 +343,4 @@ API 呼叫使用 **TanStack Query v5** 的 `useMutation`，統一放在 `src/api
 
 ---
 
-*文件版本：v1.1 | 最後更新：2026-03-19*
+*文件版本：v1.2 | 最後更新：2026-03-20*

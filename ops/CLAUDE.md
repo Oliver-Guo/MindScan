@@ -10,7 +10,7 @@
 |------|------|
 | `Dockerfile.backend` | 後端 Docker 映像（multi-stage build，Node 20 Alpine） |
 | `Dockerfile.frontend` | 前端 Docker 映像（Vite build → Nginx Alpine） |
-| `docker-compose.yml` | 容器化部署（Backend + Frontend） |
+| `docker-compose.yml` | 容器化部署（MySQL + Backend + Frontend） |
 | `nginx.conf` | Nginx 設定（SPA fallback + API Proxy + Gzip） |
 | `.env.example` | 環境變數範本（部署前複製為 `.env` 並填入 API Key） |
 
@@ -57,5 +57,6 @@ GEMINI_API_KEY=AIza-xxxxx
 
 | 服務 | 開發 Port | 說明 |
 |------|-----------|------|
+| MySQL | 3306 | MySQL 8.0（ai_api_logs 日誌儲存） |
 | Backend | 3001 | Express API（Gemini Proxy） |
 | Frontend | 5173 (dev) / 80 (docker) | React 應用 |

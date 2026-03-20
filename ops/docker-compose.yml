@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: mindscan-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: mind_scan
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
   backend:
     build:
       context: ../backend
@@ -15,6 +35,10 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       CORS_ORIGIN: http://localhost
       LOG_LEVEL: info
+      DATABASE_URL: mysql://root:rootpass@mysql:3306/mind_scan
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   frontend:
     build:
@@ -26,3 +50,6 @@ services:
       - "80:80"
     depends_on:
       - backend
+
+volumes:
+  mysql_data:

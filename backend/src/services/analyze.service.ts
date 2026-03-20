@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { env } from '../config/env'
 import { AppError } from '../utils/AppError'
+import { logApiCall } from './api-log.service'
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
 
@@ -61,12 +62,33 @@ async function generateWithFallback(
       const raw = result.response.text().trim()
       const cleaned = cleanJsonResponse(raw)
       console.info(`[generateWithFallback] 使用模型：${modelName}，原始回傳前100字：${raw.slice(0, 100)}`)
+
+      // 記錄成功的 API 呼叫
+      logApiCall({
+        companyType: 'gemini',
+        modelType: modelName,
+        status: 200,
+        request: { systemInstruction, prompt },
+        response: { raw: raw.slice(0, 5000) },
+      })
+
       return cleaned
     } catch (err) {
       lastErr = err
+      const e = err as { status?: number }
+      const status = e.status ?? 500
+
+      // 記錄失敗的 API 呼叫
+      logApiCall({
+        companyType: 'gemini',
+        modelType: modelName,
+        status,
+        request: { systemInstruction, prompt },
+        response: { error: err instanceof Error ? err.message : String(err) },
+      })
+
       if (isFallbackError(err)) {
-        const e = err as { status?: number }
-        console.warn(`[generateWithFallback] 模型 ${modelName} 不可用（status: ${e.status ?? 'unknown'}），嘗試下一個模型…`)
+        console.warn(`[generateWithFallback] 模型 ${modelName} 不可用（status: ${status}），嘗試下一個模型…`)
         continue
       }
       // Non-quota error → rethrow immediately

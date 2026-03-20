@@ -19,14 +19,20 @@
 
 ```
 backend/
+├── prisma/
+│   ├── schema.prisma        # Prisma schema (MySQL)
+│   ├── prisma.config.ts     # Prisma 7 設定（datasource URL）
+│   └── migrations/          # Database migrations
 ├── src/
 │   ├── config/
 │   │   ├── env.ts           # 環境變數驗證 (Zod)
+│   │   ├── prisma.ts        # Prisma Client 單例
 │   │   └── swagger.ts       # Swagger 設定
 │   ├── controllers/         # HTTP 層，只處理 req/res
 │   │   └── analyze.controller.ts
 │   ├── services/            # AI API 呼叫層
-│   │   └── analyze.service.ts
+│   │   ├── analyze.service.ts
+│   │   └── api-log.service.ts  # AI API 呼叫日誌（寫入 MySQL）
 │   ├── routes/              # Express Router
 │   │   ├── index.ts
 │   │   └── analyze.routes.ts
@@ -40,6 +46,7 @@ backend/
 │   │   ├── response.ts
 │   │   └── logger.ts
 │   └── app.ts
+├── prisma.config.ts         # Prisma 7 config（位於專案根目錄）
 ├── tests/
 └── .env.example
 ```
@@ -54,4 +61,5 @@ PORT=3001
 GEMINI_API_KEY=          # Google Gemini API Key（必填）
 CORS_ORIGIN=http://localhost:5173
 LOG_LEVEL=info           # error | warn | info | debug
+DATABASE_URL=mysql://root:rootpass@localhost:3306/mind_scan  # MySQL 連線字串（必填）
 ```

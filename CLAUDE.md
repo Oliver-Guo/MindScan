@@ -37,6 +37,8 @@ project/
 | 框架 | Express | ^4.18 |
 | 語言 | TypeScript | ^5.3 |
 | AI SDK | @google/generative-ai（主）/ @anthropic-ai/sdk（擴充）| ^0.x |
+| ORM | Prisma | ^7.x |
+| 資料庫 | MySQL | 8.0 |
 | 驗證 | Zod | ^3.x |
 | 日誌 | Winston + Morgan | - |
 | API 文檔 | Swagger UI (OpenAPI 3.0) | - |

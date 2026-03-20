@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model AiApiLog {
+  id          Int      @id @default(autoincrement())
+  companyType String   @map("company_type") @db.VarChar(50)
+  modelType   String   @map("model_type") @db.VarChar(100)
+  status      Int
+  request     Json
+  response    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("ai_api_logs")
+}

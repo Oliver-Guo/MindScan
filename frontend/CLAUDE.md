@@ -33,8 +33,26 @@ frontend/src/
 │   ├── axios.ts         # Axios 實例設定
 │   ├── queryClient.ts   # TanStack Query 設定
 │   └── utils.ts         # shadcn/ui cn() 工具
+├── test/
+│   └── setup.ts         # 測試 setup（@testing-library/jest-dom）
 └── main.tsx
 ```
+
+---
+
+## 測試
+
+```bash
+npm test              # 執行所有測試
+npm run test:watch    # 監聽模式
+npm run test:coverage # 產生覆蓋率報告
+```
+
+- 測試框架：Vitest ^4.1 + @testing-library/react + @testing-library/jest-dom
+- 測試檔案以 `__tests__/` 目錄放在對應原始碼旁（co-located），例如 `src/stores/__tests__/appStore.test.ts`
+- `vitest.config.ts` 繼承 `vite.config.ts` 的 `@` path alias 與 React plugin
+- Mock 策略：`@/lib/axios` 使用 `vi.mock` 控制 API 回傳
+- 元件測試中使用 `act()` 包裹 timer 操作（如 `vi.advanceTimersByTime`）
 
 ---
 

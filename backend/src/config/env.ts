@@ -7,6 +7,7 @@ const envSchema = z.object({
   GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY 為必填'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
+  DATABASE_URL: z.string().min(1, 'DATABASE_URL 為必填'),
 })
 
 const parsed = envSchema.safeParse(process.env)

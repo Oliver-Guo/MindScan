@@ -13,6 +13,7 @@
 |------|------|
 | 後端 | Node.js 20 + Express + TypeScript |
 | AI | Gemini API（@google/generative-ai，主）/ Claude API（待擴充）|
+| 資料庫 | MySQL 8.0 + Prisma ORM（API 呼叫日誌）|
 | 前端 | React 18 + Vite + TypeScript + shadcn/ui |
 | 狀態管理 | Zustand + TanStack Query v5 |
 | 部署 | Docker + Nginx |
@@ -24,7 +25,7 @@
 ### 前置需求
 
 - Node.js 20+
-- Docker（用於容器化部署）
+- Docker（用於容器化部署 + MySQL）
 - Google Gemini API Key
 
 ### 1. 後端啟動
@@ -37,7 +38,13 @@ npm install
 
 # 建立 .env（首次需要）
 cp .env.example .env
-# 填入你的 GEMINI_API_KEY
+# 填入你的 GEMINI_API_KEY 和 DATABASE_URL
+
+# 啟動 MySQL（透過 Docker）
+cd ../ops && docker compose up mysql -d && cd ../backend
+
+# 執行資料庫 migration
+npx prisma migrate deploy
 
 # 啟動開發伺服器（port 3001）
 npm run dev
@@ -89,14 +96,16 @@ npm run dev
 ```
 project/
 ├── backend/
+│   ├── prisma/                # Prisma schema + migrations
 │   ├── src/
-│   │   ├── config/            # 環境變數、Swagger
+│   │   ├── config/            # 環境變數、Swagger、Prisma Client
 │   │   ├── controllers/       # HTTP 處理層
-│   │   ├── services/          # Gemini API 呼叫層
+│   │   ├── services/          # Gemini API 呼叫層 + API 日誌
 │   │   ├── routes/            # 路由設定
 │   │   ├── middlewares/       # 錯誤處理
 │   │   ├── schemas/           # Zod 驗證 Schema
 │   │   └── app.ts             # Express 入口
+│   ├── prisma.config.ts       # Prisma 7 設定
 │   ├── .env.example
 │   └── package.json
 ├── frontend/
@@ -130,7 +139,8 @@ cd ops
 cp .env.example .env
 # 填入你的 GEMINI_API_KEY
 
-# 啟動所有服務（後端 + 前端）
+# 啟動所有服務（MySQL + 後端 + 前端）
+# 後端容器啟動時會自動執行 prisma migrate deploy
 docker-compose up -d
 
 # 查看狀態
@@ -138,7 +148,16 @@ docker-compose ps
 
 # 查看後端日誌
 docker-compose logs -f backend
+
+# 重建後端（程式碼變更時）
+docker-compose up -d --build backend
+
+# 重啟後端（僅更新 ops/.env 環境變數時，不需 --build）
+docker-compose up -d backend
 ```
+
+> **注意**：`ops/.env` 用於 Docker 部署，`backend/.env` 用於本機 `npm run dev`。
+> 修改 `ops/.env` 後需執行 `docker-compose up -d backend` 重啟容器才會生效。
 
 | 服務 | 網址 |
 |------|------|
@@ -167,6 +186,7 @@ cp backend/.env.example backend/.env
 | `GEMINI_API_KEY` | Google Gemini API Key（主要 AI）| ✓ |
 | `CORS_ORIGIN` | 允許的前端來源 | ✓ |
 | `LOG_LEVEL` | 日誌等級（info / debug / error）| - |
+| `DATABASE_URL` | MySQL 連線字串 | ✓ |
 
 ### Frontend `.env`
 

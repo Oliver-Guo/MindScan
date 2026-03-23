@@ -1,3 +1,4 @@
+import path from 'path'
 import { Express } from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
@@ -156,7 +157,10 @@ const options: swaggerJsdoc.Options = {
       },
     },
   },
-  apis: ['./src/routes/*.ts', './src/controllers/*.ts'],
+  apis: [
+    path.resolve(__dirname, '../routes/*.ts'),
+    path.resolve(__dirname, '../controllers/*.ts'),
+  ],
 }
 
 export const setupSwagger = (app: Express) => {
